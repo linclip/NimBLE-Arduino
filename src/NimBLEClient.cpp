@@ -57,6 +57,13 @@ NimBLEClient::NimBLEClient()
 } // NimBLEClient
 
 
+NimBLEClient::NimBLEClient(NimBLEAdvertisedDevice* device) : NimBLEClient()
+{
+    m_peerAddress = device->getAddress();
+    m_peerType = device->getAddressType();
+} // NimBLEClient
+
+
 /**
  * @brief Destructor, private - only callable by NimBLEDevice::deleteClient
  * to ensure proper disconnect and removal from device list.
@@ -189,6 +196,14 @@ bool NimBLEClient::connect(NimBLEAddress address, uint8_t type, bool refreshServ
     NIMBLE_LOGD(LOG_TAG, "<< connect()");
     return true;
 } // connect
+
+
+/**
+ * Add overloaded function to ease connect to peer device with prepare conditioins
+ */
+bool NimBLEClient::connect(bool refreshServices) {
+    return connect(m_peerAddress, m_peerType, refreshServices);
+}
 
 
 /**

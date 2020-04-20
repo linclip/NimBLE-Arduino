@@ -78,7 +78,7 @@ public:
     static NimBLEAddress    getAddress();
     static std::string      toString();
     static NimBLEScan*      getScan();                     // Get the scan object
-    static NimBLEClient*    createClient();
+    static NimBLEClient*    createClient(NimBLEAdvertisedDevice* device = nullptr);
 	static NimBLEServer*    createServer();
     static bool             deleteClient(NimBLEClient* pClient);
     static void             setPower(esp_power_level_t powerLevel);
