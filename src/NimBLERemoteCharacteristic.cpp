@@ -151,6 +151,9 @@ int NimBLERemoteCharacteristic::descriptorDiscCB(uint16_t conn_handle,
     if(characteristic->getRemoteService()->getClient()->getConnId() != conn_handle){
         return 0;
     }
+    if(characteristic->getHandle() != chr_val_handle){
+        return 0;
+    }
     
     switch (error->status) {
         case 0: {
@@ -389,6 +392,10 @@ int NimBLERemoteCharacteristic::onReadCB(uint16_t conn_handle,
     if(conn_id != conn_handle) {
         return 0;
     }
+    if(characteristic->getHandle() != attr->handle){
+        return 0;
+    }
+
     NIMBLE_LOGI(LOG_TAG, "Read complete; status=%d conn_handle=%d", error->status, conn_handle);
 
     if(error->status == 0) {
@@ -600,6 +607,9 @@ int NimBLERemoteCharacteristic::onWriteCB(uint16_t conn_handle,
     
     // Make sure the discovery is for this device
     if(characteristic->getRemoteService()->getClient()->getConnId() != conn_handle){
+        return 0;
+    }
+    if(characteristic->getHandle() != attr->handle){
         return 0;
     }
     

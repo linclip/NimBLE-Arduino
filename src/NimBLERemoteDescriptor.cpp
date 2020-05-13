@@ -90,6 +90,9 @@ int NimBLERemoteDescriptor::onReadCB(uint16_t conn_handle,
     if(conn_id != conn_handle){
         return 0;
     }
+    if(desc->getHandle() != attr->handle){
+        return 0;
+    }
     
     NIMBLE_LOGD(LOG_TAG, "Read complete; status=%d conn_handle=%d", error->status, conn_handle);
     
@@ -219,6 +222,9 @@ int NimBLERemoteDescriptor::onWriteCB(uint16_t conn_handle,
     
     // Make sure the discovery is for this device
     if(descriptor->getRemoteCharacteristic()->getRemoteService()->getClient()->getConnId() != conn_handle){
+        return 0;
+    }
+    if(descriptor->getHandle() != attr->handle){
         return 0;
     }
 
