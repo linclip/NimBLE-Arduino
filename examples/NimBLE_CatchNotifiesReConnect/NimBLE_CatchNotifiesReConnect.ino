@@ -16,13 +16,13 @@ void careBLEClient(BLEClient* pClient) {
   if(!pClient->isConnected() && pClient->connect()) {
     Serial.printf("connect: %s", pClient->getPeerAddress().toString().c_str());
     Serial.println();
-    auto* pRemoteServiceMap = pClient->getServices();
-    for (auto itr : *pRemoteServiceMap)  {
-      auto *pCharacteristicMap = itr.second->getCharacteristicsByHandle();
-      for (auto itr : *pCharacteristicMap)
-        if(itr.second->canNotify()) {
-          if(itr.second->registerForNotify(notifyCallback)) {
-            Serial.printf("registerForNotify: %s %s handle:%d", pClient->getPeerAddress().toString().c_str(), itr.second->getUUID().toString().c_str(), itr.second->getHandle());
+    auto pServices = pClient->getServices();
+    for (auto pService : *pServices)  {
+      auto *pCharacteristics = pService->getCharacteristics();
+      for (auto pCharacteristic : *pCharacteristics)
+        if(pCharacteristic->canNotify()) {
+          if(pCharacteristic->registerForNotify(notifyCallback)) {
+            Serial.printf("registerForNotify: %s %s handle:%d", pClient->getPeerAddress().toString().c_str(), pCharacteristic->getUUID().toString().c_str(), pCharacteristic->getHandle());
             Serial.println();
           }
         }

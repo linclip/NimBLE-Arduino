@@ -129,7 +129,7 @@ public:
 #endif
 
 #if defined( CONFIG_BT_NIMBLE_ROLE_CENTRAL)
-    static NimBLEClient*    createClient();
+    static NimBLEClient*    createClient(NimBLEAdvertisedDevice* device = nullptr);
     static bool             deleteClient(NimBLEClient* pClient);
     static NimBLEClient*    getClientByID(uint16_t conn_id);
     static NimBLEClient*    getClientByPeerAddress(const NimBLEAddress &peer_addr);
