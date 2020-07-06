@@ -51,6 +51,7 @@ NimBLECharacteristic::NimBLECharacteristic(const NimBLEUUID &uuid, uint16_t prop
     m_value      = "";
     m_valMux     = portMUX_INITIALIZER_UNLOCKED;
     m_pTaskData  = nullptr;
+    m_timestamp  = 0;
 } // NimBLECharacteristic
 
 /**
@@ -137,7 +138,7 @@ uint16_t NimBLECharacteristic::getHandle() {
 } // getHandle
 
 
-uint8_t NimBLECharacteristic::getProperties() {
+uint16_t NimBLECharacteristic::getProperties() {
     return m_properties;
 } // getProperties
 
@@ -163,9 +164,12 @@ NimBLEUUID NimBLECharacteristic::getUUID() {
  * @brief Retrieve the current value of the characteristic.
  * @return A pointer to storage containing the current characteristic value.
  */
-std::string NimBLECharacteristic::getValue() {
+std::string NimBLECharacteristic::getValue(time_t *timestamp) {
     portENTER_CRITICAL(&m_valMux);
     std::string retVal = m_value;
+    if(timestamp != nullptr) {
+        *timestamp = m_timestamp;
+    }
     portEXIT_CRITICAL(&m_valMux);
 
     return retVal;
@@ -346,6 +350,9 @@ void NimBLECharacteristic::notify(bool is_notification) {
 
     std::string value = getValue();
     size_t length = value.length();
+    bool reqSec = (m_properties & BLE_GATT_CHR_F_READ_AUTHEN) ||
+                  (m_properties & BLE_GATT_CHR_F_READ_AUTHOR) ||
+                  (m_properties & BLE_GATT_CHR_F_READ_ENC);
     int rc = 0;
 
     for (auto &it : p2902->m_subscribedVec) {
@@ -353,8 +360,16 @@ void NimBLECharacteristic::notify(bool is_notification) {
 
         // check if connected and subscribed
         if(_mtu == 0 || it.sub_val == 0) {
-            //NIMBLE_LOGD(LOG_TAG, "peer not connected");
             continue;
+        }
+
+        // check if security requirements are satisfied
+        if(reqSec) {
+            struct ble_gap_conn_desc desc;
+            rc = ble_gap_conn_find(it.conn_id, &desc);
+            if(rc != 0 || !desc.sec_state.encrypted) {
+                continue;
+            }
         }
 
         if (length > _mtu - 3) {
@@ -450,6 +465,7 @@ void NimBLECharacteristic::setValue(const uint8_t* data, size_t length) {
 
     portENTER_CRITICAL(&m_valMux);
     m_value = std::string((char*)data, length);
+    m_timestamp = time(nullptr);
     portEXIT_CRITICAL(&m_valMux);
 
     NIMBLE_LOGD(LOG_TAG, "<< setValue");
@@ -465,41 +481,6 @@ void NimBLECharacteristic::setValue(const uint8_t* data, size_t length) {
  */
 void NimBLECharacteristic::setValue(const std::string &value) {
     setValue((uint8_t*)(value.data()), value.length());
-} // setValue
-
-void NimBLECharacteristic::setValue(uint16_t& data16) {
-    uint8_t temp[2];
-    temp[0] = data16;
-    temp[1] = data16 >> 8;
-    setValue(temp, 2);
-} // setValue
-
-void NimBLECharacteristic::setValue(uint32_t& data32) {
-    uint8_t temp[4];
-    temp[0] = data32;
-    temp[1] = data32 >> 8;
-    temp[2] = data32 >> 16;
-    temp[3] = data32 >> 24;
-    setValue(temp, 4);
-} // setValue
-
-void NimBLECharacteristic::setValue(int& data32) {
-    uint8_t temp[4];
-    temp[0] = data32;
-    temp[1] = data32 >> 8;
-    temp[2] = data32 >> 16;
-    temp[3] = data32 >> 24;
-    setValue(temp, 4);
-} // setValue
-
-void NimBLECharacteristic::setValue(float& data32) {
-    float temp = data32;
-    setValue((uint8_t*)&temp, 4);
-} // setValue
-
-void NimBLECharacteristic::setValue(double& data64) {
-    double temp = data64;
-    setValue((uint8_t*)&temp, 8);
 } // setValue
 
 
