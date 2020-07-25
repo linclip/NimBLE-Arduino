@@ -284,6 +284,10 @@ std::vector<NimBLERemoteDescriptor*>* NimBLERemoteCharacteristic::getDescriptors
     return &m_descriptorVector;
 } // getDescriptors
 
+std::vector<NimBLERemoteDescriptor*>* NimBLERemoteCharacteristic::getDescriptors() {
+	return getDescriptors(m_descriptorVector.size() == 0);
+} // getDescriptors
+
 
 /**
  * @brief Get iterator to the beginning of the vector of remote descriptor pointers.
