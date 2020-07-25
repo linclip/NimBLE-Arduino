@@ -56,7 +56,7 @@ public:
     std::vector<NimBLERemoteDescriptor*>::iterator end();
     NimBLERemoteDescriptor*                        getDescriptor(const NimBLEUUID &uuid);
     std::vector<NimBLERemoteDescriptor*>*          getDescriptors(bool refresh);
-	std::vector<NimBLERemoteDescriptor*>*          getDescriptors();
+    std::vector<NimBLERemoteDescriptor*>*          getDescriptors();
     void                                           deleteDescriptors();
     size_t                                         deleteDescriptor(const NimBLEUUID &uuid);
     uint16_t                                       getHandle();
