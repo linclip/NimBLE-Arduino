@@ -46,7 +46,8 @@ public:
     NimBLEAddress                               getPeerAddress();
     uint8_t                                     getPeerType();
     int                                         getRssi();
-    std::vector<NimBLERemoteService*>*          getServices(bool refresh = false);
+    std::vector<NimBLERemoteService*>*          getServices(bool refresh);
+    std::vector<NimBLERemoteService*>*          getServices();
     std::vector<NimBLERemoteService*>::iterator begin();
     std::vector<NimBLERemoteService*>::iterator end();
     NimBLERemoteService*                        getService(const char* uuid);

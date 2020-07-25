@@ -84,10 +84,6 @@ NimBLEUUID NimBLERemoteDescriptor::getUUID() {
  * @deprecated Use readValue<uint8_t>().
  */
 uint8_t NimBLERemoteDescriptor::readUInt8() {
-    if(desc->getHandle() != attr->handle){
-        return 0;
-    }
-
     std::string value = readValue();
     if (value.length() >= 1) {
         return (uint8_t) value[0];
@@ -102,10 +98,6 @@ uint8_t NimBLERemoteDescriptor::readUInt8() {
  * @deprecated Use readValue<uint16_t>().
  */
 uint16_t NimBLERemoteDescriptor::readUInt16() {
-    if(desc->getHandle() != attr->handle){
-        return 0;
-    }
-
     std::string value = readValue();
     if (value.length() >= 2) {
         return *(uint16_t*) value.data();
@@ -120,10 +112,6 @@ uint16_t NimBLERemoteDescriptor::readUInt16() {
  * @deprecated Use readValue<uint32_t>().
  */
 uint32_t NimBLERemoteDescriptor::readUInt32() {
-    if(desc->getHandle() != attr->handle){
-        return 0;
-    }
-
     std::string value = readValue();
     if (value.length() >= 4) {
         return *(uint32_t*) value.data();

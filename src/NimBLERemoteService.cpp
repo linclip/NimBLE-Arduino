@@ -133,6 +133,10 @@ std::vector<NimBLERemoteCharacteristic*>* NimBLERemoteService::getCharacteristic
     return &m_characteristicVector;
 } // getCharacteristics
 
+std::vector<NimBLERemoteCharacteristic*>* NimBLERemoteService::getCharacteristics() {
+    return getCharacteristics(m_characteristicVector.size() == 0);
+} // getCharacteristics
+
 
 /**
  * @brief Callback for Characterisic discovery.

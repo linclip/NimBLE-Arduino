@@ -51,7 +51,8 @@ public:
     bool                                      setValue(const NimBLEUUID &characteristicUuid,
                                                        const std::string &value);
     std::string                               toString(void);
-    std::vector<NimBLERemoteCharacteristic*>* getCharacteristics(bool refresh = false);
+	std::vector<NimBLERemoteCharacteristic*>* getCharacteristics(bool refresh);
+    std::vector<NimBLERemoteCharacteristic*>* getCharacteristics();
 
 private:
     // Private constructor ... never meant to be created by a user application.

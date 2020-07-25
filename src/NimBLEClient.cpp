@@ -474,6 +474,9 @@ std::vector<NimBLERemoteService*>* NimBLEClient::getServices(bool refresh) {
     return &m_servicesVector;
 } // getServices
 
+std::vector<NimBLERemoteService*>* NimBLEClient::getServices() {
+	return getServices(m_servicesVector.size() == 0);
+} // getServices
 
 /**
  * @brief Retrieves the full database of attributes that the peripheral has available.
