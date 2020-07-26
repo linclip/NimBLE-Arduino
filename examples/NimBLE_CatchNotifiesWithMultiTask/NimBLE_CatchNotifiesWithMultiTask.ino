@@ -3,7 +3,6 @@
  */
 
 #include <NimBLEDevice.h>
-std::vector<NimBLEClient*> BleClients;
 
 static void notifyCallback(BLERemoteCharacteristic* pRemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify)  {
   Serial.printf("notifyCallback: %s %s handle: %d value:", pRemoteCharacteristic->getRemoteService()->getClient()->getPeerAddress().toString().c_str(), pRemoteCharacteristic->getUUID().toString().c_str(), pRemoteCharacteristic->getHandle());
@@ -16,15 +15,13 @@ void careBLEClient(BLEClient* pClient) {
   if(!pClient->isConnected() && pClient->connect()) {
     Serial.printf("connect: %s", pClient->getPeerAddress().toString().c_str());
     Serial.println();
-    auto* pRemoteServiceMap = pClient->getServices();
-    for (auto itr : *pRemoteServiceMap)  {
-      auto *pCharacteristicMap = itr.second->getCharacteristicsByHandle();
-      for (auto itr : *pCharacteristicMap)
-        if(itr.second->canNotify()) {
-          if(itr.second->registerForNotify(notifyCallback)) {
-            Serial.printf("registerForNotify: %s %s handle:%d", pClient->getPeerAddress().toString().c_str(), itr.second->getUUID().toString().c_str(), itr.second->getHandle());
-            Serial.println();
-          }
+    auto pServices = pClient->getServices(true);
+    for (auto pService : *pServices)  {
+      auto pCharacteristics = pService->getCharacteristics(true);
+      for (auto pCharacteristic : *pCharacteristics)
+        if(pCharacteristic->canNotify() && pCharacteristic->registerForNotify(notifyCallback)) {
+          Serial.printf("registerForNotify: %s %s handle:%d", pClient->getPeerAddress().toString().c_str(), pCharacteristic->getUUID().toString().c_str(), pCharacteristic->getHandle());
+          Serial.println();
         }
     }
   }
@@ -43,21 +40,20 @@ void setup() {
   for (int i = 0; i < pScanResults.getCount(); i++) {
     auto advertisedDevice = pScanResults.getDevice(i);
     if (advertisedDevice.haveServiceUUID())  {
-      Serial.print("Found Device ");
-      Serial.print(advertisedDevice.toString().c_str());
       auto pClient = NimBLEDevice::createClient(&advertisedDevice);
       if(pClient) {
-        BleClients.push_back(pClient);
-        pClient->setConnectTimeout(1);
+//      pClient->setConnectTimeout(1);    during trial and error
         careBLEClient(pClient);
         xTaskCreatePinnedToCore([](void *p) {for(;;) {careBLEClient((BLEClient*)p);vTaskDelay(200 / portTICK_PERIOD_MS);}}
           , "careBLEClient", 4096, pClient, 10, NULL, CONFIG_ARDUINO_RUNNING_CORE);
-      } else 
-        Serial.println();
+        Serial.print("Found Device ");
+        Serial.println(advertisedDevice.toString().c_str());
+      }
     }
   }
-  if(!BleClients.size())
-    ESP.restart();
+
+  if(NimBLEDevice::getClientListSize() == 0)
+    ESP.restart();  
 }
 
 void loop() {
