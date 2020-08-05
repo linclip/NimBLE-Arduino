@@ -525,6 +525,12 @@ void NimBLEAdvertisedDevice::setTXPower(int8_t txPower) {
  */
 std::string NimBLEAdvertisedDevice::toString() {
     std::string res = "Name: " + getName() + ", Address: " + getAddress().toString();
+    {
+        char val[4];
+        snprintf(val, sizeof(val), "%d", getAddress().getType());
+        res += ", type: ";
+        res += val;
+    }
 
     if (haveAppearance()) {
         char val[6];
